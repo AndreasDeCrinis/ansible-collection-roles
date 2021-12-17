@@ -50,4 +50,5 @@
       prometheus:
         enabled: true  # emit metrics
   when:
-    - not kubeadm_cilium_check.status.status == "deployed"
+    - kubeadm_cilium_check.status is not defined
+    # - not kubeadm_cilium_check.status.status == "deployed"

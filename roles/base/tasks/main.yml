@@ -5,26 +5,26 @@
   failed_when: ansible_os_family != "Debian"
 
 ## apt
-- name: apt - install zone and distro specific apt sources.list
-  template:
-    src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
-    dest: /etc/apt/sources.list
-  register: base_sources_list
+# - name: apt - install zone and distro specific apt sources.list
+#   template:
+#     src: "{{ base_apt_repo_zone }}-{{ ansible_distribution | lower }}.list.j2"
+#     dest: /etc/apt/sources.list
+#   register: base_sources_list
 
-- name: apt - set /etc/hosts when no dns is available
-  blockinfile:
-    path: /etc/hosts
-    marker_begin: "### APT REPO NO DNS HACK - BEGIN ###"
-    content: "{{ base_customer_mirror_ip }} {{ base_customer_mirror }}"
-    marker_end: "### APT REPO NO DNS HACK - END ###"
-  when:
-    - base_apt_repo_no_dns_hack | bool
-    - base_apt_repo_zone == "intranet"
+# - name: apt - set /etc/hosts when no dns is available
+#   blockinfile:
+#     path: /etc/hosts
+#     marker_begin: "### APT REPO NO DNS HACK - BEGIN ###"
+#     content: "{{ base_customer_mirror_ip }} {{ base_customer_mirror }}"
+#     marker_end: "### APT REPO NO DNS HACK - END ###"
+#   when:
+#     - base_apt_repo_no_dns_hack | bool
+#     - base_apt_repo_zone == "intranet"
 
 - name: apt - update apt cache
   apt:
     update_cache: yes
-  when: base_sources_list.changed  # noqa 503 - this needs to run right at this point to use the new mirrors
+  # when: base_sources_list.changed  # noqa 503 - this needs to run right at this point to use the new mirrors
 
 - name: apt - disable recommends and suggests
   copy:
