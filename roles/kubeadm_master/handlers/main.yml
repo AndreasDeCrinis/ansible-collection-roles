@@ -1,0 +1,3 @@
+---
+- name: restart coredns
+  command: kubectl rollout restart deployment coredns -n=kube-system
