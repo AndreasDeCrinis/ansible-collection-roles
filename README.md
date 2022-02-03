@@ -1,6 +1,8 @@
 # mgIT roles Collection for Ansible
 [![CI](https://github.com/mgit-at/ansible-collection-roles/workflows/CI/badge.svg?event=push)](https://github.com/mgit-at/ansible-collection-roles/actions)
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/mgit-at/ansible-collection-roles/main.svg)](https://results.pre-commit.ci/latest/github/mgit-at/ansible-collection-roles/main)
+
 <!-- no Codecov (yet?) [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/REPONAMEHERE)](https://codecov.io/gh/ansible-collections/REPONAMEHERE) -->
 
 This collection contains common roles in active use by mgIT GmbH.
@@ -108,3 +110,5 @@ Start publishing roles that are in common use internally or that are required fo
 Apache-2.0 License
 
 See [LICENSE](LICENSE) to see the full text.
+
+Copyright 2021 mgIT GmbH.
