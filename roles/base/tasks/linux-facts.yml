@@ -1,0 +1,20 @@
+
+- name: get OS Release
+  shell: cat /etc/os-release | grep ID_LIKE | cut -d '=' -f2
+  changed_when: false
+  register: os_release
+
+- name: get distribution id
+  shell: cat /etc/lsb-release | grep DISTRIB_ID | cut -d '=' -f2
+  changed_when: false
+  register: dist_id
+
+- name: get distribution release
+  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2
+  changed_when: false
+  register: dist_release
+
+- name: get distribution release major version
+  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2 | cut -d '.' -f1
+  changed_when: false
+  register: dist_release_major

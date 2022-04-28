@@ -37,5 +37,5 @@ backend kube_api
     timeout connect 5s
     timeout server 3h
 {% for master in groups[kubernetes_masters_group_name] | sort() %}
-    server {{ hostvars[master].ansible_nodename }} {{ hostvars[master].ansible_default_ipv4.address }}:{{ kubernetes_api_lb_backend_port | default('6442') }} {% if master == inventory_hostname %}id 1{% endif %} check check-ssl verify none
+    server {{ hostvars[master].ansible_host }} {{ hostvars[master].ip_address }}:{{ kubernetes_api_lb_backend_port | default('6442') }} {% if master == inventory_hostname %}id 1{% endif %} check check-ssl verify none
 {% endfor %}

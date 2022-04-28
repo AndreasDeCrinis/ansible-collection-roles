@@ -1,4 +1,8 @@
 ---
+- name: get linux facts
+  include_tasks: linux-facts.yml
+
+
 - name: install kubeadm packages
   apt:
     name:
@@ -15,7 +19,7 @@
     state: present
     force: yes
   # hatop is not available on Ubuntu 20.04 "Focal Fossa" but got re-added later
-  when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
+  when: dist_id.stdout == "Debian" or (dist_release_major.stdout | int) != 20
 
 - name: add hatop config for shells (not on focal)
   loop:
@@ -27,7 +31,7 @@
     marker: "### {mark} ANSIBLE MANAGED BLOCK for hatop ###"
     content: |
       alias hatop="hatop -s /var/run/haproxy/admin.sock"
-  when: ansible_distribution == "Debian" or (ansible_distribution_major_version | int) != 20
+  when: dist_id.stdout == "Debian" or (dist_release_major.stdout | int) != 20
 
 - name: disable automatic upgrades for kubeadm/kubectl
   loop:

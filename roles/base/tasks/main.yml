@@ -1,23 +1,7 @@
 ---
-- name: get OS Release
-  shell: cat /etc/os-release | grep ID_LIKE | cut -d '=' -f2
-  changed_when: false
-  register: os_release
 
-- name: get distribution id
-  shell: cat /etc/lsb-release | grep DISTRIB_ID | cut -d '=' -f2
-  changed_when: false
-  register: dist_id
-
-- name: get distribution release
-  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2
-  changed_when: false
-  register: dist_release
-
-- name: get distribution release major version
-  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2 | cut -d '.' -f1
-  changed_when: false
-  register: dist_release_major
+- name: get linux facts
+  import_tasks: linux-facts.yml
 
 - name: Check if OS is Debian-based (we do not support others)
   debug:
@@ -89,7 +73,7 @@
 - name: apt - (Un)install base system tools (debian stretch and beyond)
   when:
     - dist_id.stdout == "Debian"
-    - ( dist_release_major | int) >= 9
+    - ( dist_release_major.stdout | int) >= 9
   block:
     - name: apt - Uninstall base system tools (debian stretch and beyond)
       apt:
@@ -108,7 +92,7 @@
         state: present
 
 - name: apt - Install base system tools (debian buster and ubuntu focal)
-  when: dist_id.stdout == "Debian" and dist_release_major | int >= 10 or dist_id.stdout == "Ubuntu" and (dist_release_major | int) >= 20
+  when: dist_id.stdout == "Debian" and dist_release_major.stdout | int >= 10 or dist_id.stdout == "Ubuntu" and (dist_release_major.stdout | int) >= 20
   apt:
     name:
       - ripgrep
@@ -258,7 +242,7 @@
 
 - name: deal with cpu governor
   when:
-    - dist_id != "Debian" or (dist_release_major | int) >= 9
+    - dist_id != "Debian" or (dist_release_major.stdout | int) >= 9
     - base_cpu_governor is defined
   block:
     - name: install CPU governor helper
