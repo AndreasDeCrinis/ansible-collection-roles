@@ -1,8 +1,28 @@
 ---
+- name: get OS Release
+  shell: cat /etc/os-release | grep ID_LIKE | cut -d '=' -f2
+  changed_when: false
+  register: os_release
+
+- name: get distribution id
+  shell: cat /etc/lsb-release | grep DISTRIB_ID | cut -d '=' -f2
+  changed_when: false
+  register: dist_id
+
+- name: get distribution release
+  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2
+  changed_when: false
+  register: dist_release
+
+- name: get distribution release major version
+  shell: cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d '=' -f2 | cut -d '.' -f1
+  changed_when: false
+  register: dist_release_major
+
 - name: Check if OS is Debian-based (we do not support others)
   debug:
     msg: "Check OS family"
-  failed_when: ansible_os_family != "Debian"
+  failed_when: os_release.stdout != "debian"
 
 ## apt
 # - name: apt - install zone and distro specific apt sources.list
@@ -61,15 +81,15 @@
   apt:
     name:
       - linux-tools-common   ## contains cpupower (see below)
-      - "{% if base_ubuntu_linux_hwe | bool %}linux-tools-generic-hwe-{{ ansible_distribution_version }}{% else %}linux-tools-generic{% endif %}"
+      - "{% if base_ubuntu_linux_hwe | bool %}linux-tools-generic-hwe-{{ dist_release.stdout }}{% else %}linux-tools-generic{% endif %}"
       - rng-tools
     state: present
-  when: ansible_distribution == "Ubuntu"
+  when: dist_id.stdout == "Ubuntu"
 
 - name: apt - (Un)install base system tools (debian stretch and beyond)
   when:
-    - ansible_distribution == "Debian"
-    - (ansible_distribution_major_version | int) >= 9
+    - dist_id.stdout == "Debian"
+    - ( dist_release_major | int) >= 9
   block:
     - name: apt - Uninstall base system tools (debian stretch and beyond)
       apt:
@@ -88,7 +108,7 @@
         state: present
 
 - name: apt - Install base system tools (debian buster and ubuntu focal)
-  when: ansible_distribution == "Debian" and ansible_distribution_major_version | int >= 10 or ansible_distribution == "Ubuntu" and (ansible_distribution_major_version | int) >= 20
+  when: dist_id.stdout == "Debian" and dist_release_major | int >= 10 or dist_id.stdout == "Ubuntu" and (dist_release_major | int) >= 20
   apt:
     name:
       - ripgrep
@@ -220,7 +240,7 @@
     path: /var/log/journal
     state: directory
   notify: Initialise persistent systemd journal (ubuntu)
-  when: ansible_distribution == "Ubuntu"
+  when: dist_id == "Ubuntu"
 
 - name: Make systemd journal persistent (debian)
   file:
@@ -228,7 +248,7 @@
     state: directory
     group: systemd-journal
   notify: Initialise persistent systemd journal (debian)
-  when: ansible_distribution == "Debian"
+  when: dist_id == "Debian"
 
 
 ## misc
@@ -238,7 +258,7 @@
 
 - name: deal with cpu governor
   when:
-    - ansible_distribution != "Debian" or (ansible_distribution_major_version | int) >= 9
+    - dist_id != "Debian" or (dist_release_major | int) >= 9
     - base_cpu_governor is defined
   block:
     - name: install CPU governor helper
@@ -255,7 +275,7 @@
 
 - name: disable ondemand init script for Ubuntu
   when:
-    - ansible_distribution == "Ubuntu"
+    - dist_id == "Ubuntu"
     - base_cpu_governor is defined
   systemd:
     name: ondemand
