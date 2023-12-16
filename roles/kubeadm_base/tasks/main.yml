@@ -7,8 +7,8 @@
   apt:
     name:
       - haproxy
-      - "kubeadm={ kubernetes_version }}-1.1"
-      - "kubectl={ kubernetes_version }}-1.1"
+      - "kubeadm={{ kubernetes_version }}-1.1"
+      - "kubectl={{ kubernetes_version }}-1.1"
     state: present
     force: yes
 
